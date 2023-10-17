@@ -1,6 +1,6 @@
 ﻿namespace PokemonReviewApp.Models
 {
-    public class PokomonOwner
+    public class PokemonOwner
     {
         public int PokemonId { get; set; }
         public int OwnerId { get; set; }
