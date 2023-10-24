@@ -1,24 +1,20 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
-using PokemonReviewApp.Data;
 using PokemonReviewApp.Dto;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
 
 namespace PokemonReviewApp.Controllers
 {
-    [Route("api([controller])")]
+    [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : Controller
     {
         private readonly ICategoryRepository _categoryRepository;
-        private readonly DataContext _context;
         private readonly IMapper _mapper;
-        public CategoryController(ICategoryRepository categoryRepository, DataContext context, IMapper mapper)
+        public CategoryController(ICategoryRepository categoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
-            _context = context;
             _mapper = mapper;
         }
 
@@ -49,13 +45,20 @@ namespace PokemonReviewApp.Controllers
             return Ok(category);
         }
 
-        [HttpGet("{categoryId}")]
-        [ProducesResponseType(200,Type =typeof(IEnumerable<Category>))]
+        [HttpGet("pokemon/{categoryId}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Pokemon>))]
         [ProducesResponseType(400)]
-        public IActionResult GetPokemonsByCategory(int categoryId)
+        public IActionResult GetPokemonByCategoryId(int categoryId)
         {
+            var pokemons = _mapper.Map<List<PokemonDto>>(
+                _categoryRepository.GetPokemonsByCategory(categoryId));
 
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            return Ok(pokemons);
         }
+
 
 
 
