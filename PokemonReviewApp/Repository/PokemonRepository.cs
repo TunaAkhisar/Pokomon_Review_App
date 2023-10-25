@@ -14,12 +14,12 @@ namespace PokemonReviewApp.Repository
 
         public Pokemon GetPokemon(int id)
         {
-            return _context.Pokemon.Where(p => p.Id == id).FirstOrDefault();
+            return _context.Pokemons.Where(p => p.Id == id).FirstOrDefault();
         }
 
         public Pokemon GetPokemon(string name)
         {
-            return _context.Pokemon.Where(p => p.Name == name).FirstOrDefault();
+            return _context.Pokemons.Where(p => p.Name == name).FirstOrDefault();
         }
 
         public decimal GetPokemonRating(int pokeId)
@@ -35,12 +35,12 @@ namespace PokemonReviewApp.Repository
 
         public ICollection<Pokemon> GetPokemons()
         {
-            return _context.Pokemon.OrderBy(p => p.Id).ToList();
+            return _context.Pokemons.OrderBy(p => p.Id).ToList();
         }
 
         public bool PokemonExists(int pokeId)
         {
-            return _context.Pokemon.Any(p => p.Id == pokeId);
+            return _context.Pokemons.Any(p => p.Id == pokeId);
         }
     }
 }
