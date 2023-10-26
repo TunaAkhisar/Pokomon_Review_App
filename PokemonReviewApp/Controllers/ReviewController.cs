@@ -74,7 +74,7 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CreateReview([FromQuery] int reviewerId, [FromQuery] int pokeId,[FromBody] ReviewDto reviewCreate)
         {
@@ -112,8 +112,8 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpPut("{reviewId}")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public IActionResult UpdateReview(int reviewId, [FromBody] ReviewDto updatedReview)
         {
@@ -138,6 +138,30 @@ namespace PokemonReviewApp.Controllers
             }
 
             return Ok("Successfully Created");
+        }
+
+        [HttpDelete("{reviewId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteReview(int reviewId)
+        {
+            if (!_reviewRepository.ReviewExists(reviewId))
+            {
+                return NotFound();
+            }
+
+            var reviewToDelete = _reviewRepository.GetReview(reviewId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_reviewRepository.DeleteReview(reviewToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong deleting review");
+            }
+
+            return Ok("Successfully Deleted");
         }
 
 

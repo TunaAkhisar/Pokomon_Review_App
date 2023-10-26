@@ -5,6 +5,7 @@ using PokemonReviewApp.Data;
 using PokemonReviewApp.Dto;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
+using PokemonReviewApp.Repository;
 
 namespace PokemonReviewApp.Controllers
 {
@@ -13,14 +14,14 @@ namespace PokemonReviewApp.Controllers
     public class PokemonController : Controller
     {
         private readonly IPokemonRepository _pokemonRepository;
-        private readonly DataContext _context;
+        private readonly IReviewRepository _reviewRepository;
         private readonly IMapper _mapper;
 
-        public PokemonController(IPokemonRepository pokemonRepository, DataContext context,IMapper mapper)
+        public PokemonController(IPokemonRepository pokemonRepository, IMapper mapper, IReviewRepository reviewRepository)
         {
             _pokemonRepository = pokemonRepository;
-            _context = context;
             _mapper = mapper;
+            _reviewRepository = reviewRepository;
         }
 
         [HttpGet]
@@ -78,7 +79,7 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CreatePokemon([FromQuery] int ownerId, [FromQuery] int categoryId, [FromBody] PokemonDto pokemonCreate)
         {
@@ -114,8 +115,8 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpPut("{pokeId}")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public IActionResult UpdatePokemon(int pokeId,[FromQuery] int ownerId, [FromQuery] int categoryId, [FromBody] PokemonDto pokemonUpdated)
         {
@@ -140,6 +141,41 @@ namespace PokemonReviewApp.Controllers
             }
 
             return Ok("Successfully Updated");
+        }
+
+        [HttpDelete("{pokeId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult DeletePokemon(int pokeId)
+        {
+            if (!_pokemonRepository.PokemonExists(pokeId))
+            {
+                return NotFound(ModelState);
+            }
+
+            var reviewsDelete = _reviewRepository.GetReviewsOfAPokemon(pokeId);
+            var pokemonDelete = _pokemonRepository.GetPokemon(pokeId);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_reviewRepository.DeleteReviews(reviewsDelete.ToList()))
+            {
+                ModelState.AddModelError("", "Something went wrong when deleting reviews");
+            }
+
+            if (!_pokemonRepository.DeletePokemon(pokemonDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong deleting pokemon");
+            }
+
+            return Ok("Successfully Deleted");
+
+
+
         }
 
     }

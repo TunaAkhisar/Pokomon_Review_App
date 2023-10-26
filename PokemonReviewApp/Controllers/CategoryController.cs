@@ -60,7 +60,7 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CreateCategory([FromBody]  CategoryDto categoryCreate)
         {
@@ -96,8 +96,9 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpPut("{categoryId}")]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public IActionResult UpdateCategory(int categoryId, [FromBody] CategoryDto updatedCategory)
         {
             if (updatedCategory == null)
@@ -130,6 +131,32 @@ namespace PokemonReviewApp.Controllers
 
             return Ok("Succesfully Updated");
         }
+        [HttpDelete("{categoryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteCategory(int categoryId)
+        {
+            if (!_categoryRepository.CategoryExists(categoryId))
+            {
+                return NotFound(ModelState);
+            }
+
+            var categoryDelete = _categoryRepository.GetCategory(categoryId);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_categoryRepository.DeleteCategory(categoryDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong deleting category");
+            }
+
+            return Ok("Successfully Deleted");
+        }
+
 
 
 

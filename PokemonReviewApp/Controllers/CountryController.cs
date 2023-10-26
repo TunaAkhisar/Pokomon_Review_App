@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PokemonReviewApp.Dto;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
+using PokemonReviewApp.Repository;
 
 namespace PokemonReviewApp.Controllers
 {
@@ -68,7 +69,7 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CreateCountry([FromBody] CountryDto countryCreate)
         {
@@ -100,8 +101,8 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpPut("{countryId}")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public IActionResult UpdateCountry(int countryId, [FromBody] CountryDto updatedCountry)
         {
@@ -134,6 +135,32 @@ namespace PokemonReviewApp.Controllers
             }
 
             return Ok("Succesfully Updated");
+        }
+
+        [HttpDelete("{countryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteCountry(int countryId)
+        {
+            if (!_countryRepository.CountryExists(countryId))
+            {
+                return NotFound(ModelState);
+            }
+
+            var countryDelete = _countryRepository.GetCountry(countryId);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_countryRepository.DeleteCountry(countryDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong deleting category");
+            }
+
+            return Ok("Successfully Deleted");
         }
 
     }

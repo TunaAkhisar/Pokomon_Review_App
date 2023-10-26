@@ -78,7 +78,7 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CreateOwner([FromQuery] int countryId , [FromBody] OwnerDto ownerCreate)
         {
@@ -112,8 +112,8 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpPut("{ownerId}")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public IActionResult UpdateOwner(int ownerId, [FromBody] OwnerDto updatedOwner)
         {
@@ -147,6 +147,34 @@ namespace PokemonReviewApp.Controllers
 
             return Ok("Succesfully Updated");
         }
+
+        [HttpDelete("{ownerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteOwner(int ownerId)
+        {
+            if (!_ownerRepository.OwnerExists(ownerId))
+            {
+                return NotFound(ModelState);
+            }
+
+            var ownerDelete = _ownerRepository.GetOwner(ownerId);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
+
+            if (!_ownerRepository.DeleteOwner(ownerDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong deleting category");
+            }
+
+            return Ok("Successfully Deleted");
+        }
+
 
     }
 
