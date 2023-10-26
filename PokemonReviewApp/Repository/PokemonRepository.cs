@@ -12,14 +12,38 @@ namespace PokemonReviewApp.Repository
             _context = context;
         }
 
+        public bool CreatePokemon(int ownerId, int categoryId, Pokemon pokemon)
+        {
+            var pokemonOwnerEntity = _context.Owners.Where(o => o.Id == ownerId).FirstOrDefault();
+            var category = _context.Categories.Where(c =>  c.Id == categoryId).FirstOrDefault();
+
+            var pokemonOwner = new PokemonOwner()
+            {
+                Owner = pokemonOwnerEntity,
+                Pokemon = pokemon,
+            };
+            _context.Add(pokemonOwner);
+
+            var pokemonCategory = new PokemonCategory()
+            {
+                Category = category,
+                Pokemon = pokemon,
+            };
+            _context.Add(pokemonCategory);
+
+            _context.Add(pokemon);
+
+            return Save();
+        }
+
         public Pokemon GetPokemon(int id)
         {
-            return _context.Pokemons.Where(p => p.Id == id).FirstOrDefault();
+            return _context.Pokemon.Where(p => p.Id == id).FirstOrDefault();
         }
 
         public Pokemon GetPokemon(string name)
         {
-            return _context.Pokemons.Where(p => p.Name == name).FirstOrDefault();
+            return _context.Pokemon.Where(p => p.Name == name).FirstOrDefault();
         }
 
         public decimal GetPokemonRating(int pokeId)
@@ -35,12 +59,18 @@ namespace PokemonReviewApp.Repository
 
         public ICollection<Pokemon> GetPokemons()
         {
-            return _context.Pokemons.OrderBy(p => p.Id).ToList();
+            return _context.Pokemon.OrderBy(p => p.Id).ToList();
         }
 
         public bool PokemonExists(int pokeId)
         {
-            return _context.Pokemons.Any(p => p.Id == pokeId);
+            return _context.Pokemon.Any(p => p.Id == pokeId);
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false; 
         }
     }
 }
